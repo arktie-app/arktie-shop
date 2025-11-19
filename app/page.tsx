@@ -1,11 +1,18 @@
 import { Search } from "lucide-react";
 import { AuthButtons } from "@/components/auth/auth-buttons";
+import { UserNav } from "@/components/auth/user-nav";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
 	return (
 		<div className="flex min-h-screen flex-col">
 			{/* Header / Navigation */}
@@ -25,7 +32,8 @@ export default function Home() {
 							</div>
 						</div>
 						<nav className="flex items-center space-x-2">
-							<AuthButtons />
+							{!user && <AuthButtons />}
+							{user && <UserNav user={user} />}
 							<ModeToggle />
 						</nav>
 					</div>
