@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { AuthButtons } from "@/components/auth/auth-buttons";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,8 +25,7 @@ export default function Home() {
 							</div>
 						</div>
 						<nav className="flex items-center space-x-2">
-							<Button variant="ghost">Log in</Button>
-							<Button>Sign up</Button>
+							<AuthButtons />
 							<ModeToggle />
 						</nav>
 					</div>
