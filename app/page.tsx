@@ -32,8 +32,7 @@ export default async function Home() {
 							</div>
 						</div>
 						<nav className="flex items-center space-x-2">
-							{!user && <AuthButtons />}
-							{user && <UserNav user={user} />}
+							{user ? <UserNav user={user} /> : <AuthButtons />}
 							<ModeToggle />
 						</nav>
 					</div>

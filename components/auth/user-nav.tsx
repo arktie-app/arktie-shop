@@ -12,7 +12,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -24,7 +23,11 @@ export function UserNav({ user }: UserNavProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
+				<Button
+					variant="ghost"
+					className="relative h-8 w-8 rounded-full"
+					suppressHydrationWarning
+				>
 					<Avatar className="h-8 w-8">
 						<AvatarImage
 							src={user.user_metadata.avatar_url}
@@ -52,14 +55,12 @@ export function UserNav({ user }: UserNavProps) {
 					<DropdownMenuItem>
 						<UserIcon className="mr-2 h-4 w-4" />
 						<span>Profile</span>
-						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={() => signout()}>
 					<LogOut className="mr-2 h-4 w-4" />
 					<span>Log out</span>
-					<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
