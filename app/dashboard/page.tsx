@@ -108,7 +108,9 @@ export default async function DashboardPage() {
 			<Tabs defaultValue="all" className="space-y-4">
 				<div className="flex items-center justify-between">
 					<TabsList>
-						<TabsTrigger value="all">All Assets</TabsTrigger>
+						<TabsTrigger value="all" suppressHydrationWarning>
+							All Assets
+						</TabsTrigger>
 						<TabsTrigger value="active">Active</TabsTrigger>
 						<TabsTrigger value="draft">Drafts</TabsTrigger>
 						<TabsTrigger value="archived">Archived</TabsTrigger>
