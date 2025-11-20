@@ -2,7 +2,9 @@
 
 import type { User } from "@supabase/supabase-js";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +23,7 @@ import {
 	ImageCropContent,
 	ImageCropReset,
 } from "@/components/ui/shadcn-io/image-crop";
+import { createClient } from "@/lib/supabase/client";
 
 interface ProfileDialogProps {
 	user: User;
@@ -36,7 +39,10 @@ export function ProfileDialog({
 	const [username, setUsername] = useState(user.user_metadata.username);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const supabase = createClient();
+	const router = useRouter();
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
@@ -53,6 +59,58 @@ export function ProfileDialog({
 		setSelectedFile(null);
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
+		}
+	};
+
+	const handleSave = async () => {
+		setIsLoading(true);
+		try {
+			let avatarUrl = user.user_metadata.avatar_url;
+
+			if (avatarPreview && avatarPreview !== user.user_metadata.avatar_url) {
+				const response = await fetch(avatarPreview);
+				const blob = await response.blob();
+				const fileExt = "png";
+				const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+				const filePath = `${fileName}`;
+
+				const { error: uploadError } = await supabase.storage
+					.from("avatar")
+					.upload(filePath, blob, {
+						upsert: true,
+					});
+
+				if (uploadError) {
+					throw uploadError;
+				}
+
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("avatar").getPublicUrl(filePath);
+
+				avatarUrl = publicUrl;
+			}
+
+			const { error: updateError } = await supabase.auth.updateUser({
+				data: {
+					full_name: username,
+					username: username,
+					avatar_url: avatarUrl,
+				},
+			});
+
+			if (updateError) {
+				throw updateError;
+			}
+
+			toast.success("Profile updated successfully");
+			onOpenChange(false);
+			router.refresh();
+		} catch (error) {
+			console.error("Error updating profile:", error);
+			toast.error("Failed to update profile");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -113,6 +171,7 @@ export function ProfileDialog({
 									variant="outline"
 									size="sm"
 									onClick={() => fileInputRef.current?.click()}
+									disabled={isLoading}
 								>
 									Change Avatar
 								</Button>
@@ -126,6 +185,7 @@ export function ProfileDialog({
 									value={username}
 									onChange={(e) => setUsername(e.target.value)}
 									className="col-span-3"
+									disabled={isLoading}
 								/>
 							</div>
 							<div className="grid grid-cols-4 items-center gap-4">
@@ -137,12 +197,13 @@ export function ProfileDialog({
 									type="password"
 									placeholder="••••••••"
 									className="col-span-3"
+									disabled={isLoading}
 								/>
 							</div>
 						</div>
 						<DialogFooter>
-							<Button type="submit" onClick={() => onOpenChange(false)}>
-								Save changes
+							<Button type="submit" onClick={handleSave} disabled={isLoading}>
+								{isLoading ? "Saving..." : "Save changes"}
 							</Button>
 						</DialogFooter>
 					</>
