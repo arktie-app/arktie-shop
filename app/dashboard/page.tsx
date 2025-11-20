@@ -9,56 +9,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getUserAssets } from "@/lib/assets";
 import { createClient } from "@/lib/supabase/server";
-
-// Mock Data
-const MY_ASSETS = [
-	{
-		id: 1,
-		title: "Cyberpunk Cityscape Vol. 1",
-		type: "Illustration",
-		price: "¥1,500",
-		sales: 124,
-		status: "Active",
-		image: "bg-linear-to-tr from-pink-500/20 to-purple-500/20",
-	},
-	{
-		id: 2,
-		title: "Neon Tokyo Street Pack",
-		type: "3D Model",
-		price: "¥3,000",
-		sales: 85,
-		status: "Active",
-		image: "bg-linear-to-tr from-blue-500/20 to-cyan-500/20",
-	},
-	{
-		id: 3,
-		title: "Anime Character Base Mesh",
-		type: "3D Model",
-		price: "¥2,500",
-		sales: 256,
-		status: "Active",
-		image: "bg-linear-to-tr from-orange-500/20 to-red-500/20",
-	},
-	{
-		id: 4,
-		title: "Fantasy Weapon Icons",
-		type: "Icon Set",
-		price: "¥800",
-		sales: 42,
-		status: "Draft",
-		image: "bg-linear-to-tr from-green-500/20 to-emerald-500/20",
-	},
-	{
-		id: 5,
-		title: "Lo-Fi Study Beats Pack",
-		type: "Audio",
-		price: "¥1,200",
-		sales: 15,
-		status: "Active",
-		image: "bg-linear-to-tr from-indigo-500/20 to-violet-500/20",
-	},
-];
 
 export default async function DashboardPage() {
 	const supabase = await createClient();
@@ -69,6 +21,8 @@ export default async function DashboardPage() {
 	if (!user) {
 		return redirect("/");
 	}
+
+	const myAssets = await getUserAssets(user.id);
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -100,10 +54,8 @@ export default async function DashboardPage() {
 						<span className="text-muted-foreground font-bold">¥</span>
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">¥452,300</div>
-						<p className="text-xs text-muted-foreground">
-							+20.1% from last month
-						</p>
+						<div className="text-2xl font-bold">¥0</div>
+						<p className="text-xs text-muted-foreground">+0% from last month</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -112,10 +64,8 @@ export default async function DashboardPage() {
 						<Download className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">+573</div>
-						<p className="text-xs text-muted-foreground">
-							+12% from last month
-						</p>
+						<div className="text-2xl font-bold">0</div>
+						<p className="text-xs text-muted-foreground">+0% from last month</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -124,9 +74,12 @@ export default async function DashboardPage() {
 						<div className="h-4 w-4 rounded-full bg-green-500/20" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">12</div>
+						<div className="text-2xl font-bold">
+							{myAssets.filter((a) => a.status === "Active").length}
+						</div>
 						<p className="text-xs text-muted-foreground">
-							2 drafts pending review
+							{myAssets.filter((a) => a.status === "Draft").length} drafts
+							pending review
 						</p>
 					</CardContent>
 				</Card>
@@ -136,8 +89,8 @@ export default async function DashboardPage() {
 						<div className="h-4 w-4 rounded-full bg-primary/20" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">2,350</div>
-						<p className="text-xs text-muted-foreground">+180 new followers</p>
+						<div className="text-2xl font-bold">0</div>
+						<p className="text-xs text-muted-foreground">+0 new followers</p>
 					</CardContent>
 				</Card>
 			</div>
@@ -154,15 +107,22 @@ export default async function DashboardPage() {
 				</div>
 				<TabsContent value="all" className="space-y-4">
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-						{MY_ASSETS.map((asset) => (
+						{myAssets.map((asset) => (
 							<Card
 								key={asset.id}
 								className="group overflow-hidden transition-all hover:shadow-lg"
 							>
 								<div className="aspect-video relative bg-muted overflow-hidden">
-									<div
-										className={`absolute inset-0 ${asset.image} group-hover:scale-105 transition-transform duration-500`}
-									/>
+									{asset.images && asset.images.length > 0 ? (
+										<div
+											className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+											style={{ backgroundImage: `url(${asset.images[0]})` }}
+										/>
+									) : (
+										<div className="absolute inset-0 bg-muted flex items-center justify-center text-muted-foreground">
+											No Image
+										</div>
+									)}
 									<div className="absolute top-2 right-2">
 										<Button
 											variant="secondary"
@@ -177,7 +137,9 @@ export default async function DashboardPage() {
 											className={`px-2 py-1 rounded text-xs font-medium backdrop-blur-md ${
 												asset.status === "Active"
 													? "bg-green-500/20 text-green-500"
-													: "bg-yellow-500/20 text-yellow-500"
+													: asset.status === "Draft"
+														? "bg-yellow-500/20 text-yellow-500"
+														: "bg-gray-500/20 text-gray-500"
 											}`}
 										>
 											{asset.status}
@@ -188,10 +150,10 @@ export default async function DashboardPage() {
 									<div className="flex justify-between items-start">
 										<div>
 											<CardTitle className="text-base line-clamp-1">
-												{asset.title}
+												{asset.name}
 											</CardTitle>
 											<p className="text-xs text-muted-foreground mt-1">
-												{asset.type}
+												Asset
 											</p>
 										</div>
 									</div>
@@ -199,11 +161,11 @@ export default async function DashboardPage() {
 								<CardContent className="p-4 pt-0 pb-2">
 									<div className="flex justify-between text-sm">
 										<span className="text-muted-foreground">Price</span>
-										<span className="font-medium">{asset.price}</span>
+										<span className="font-medium">¥{asset.price}</span>
 									</div>
 									<div className="flex justify-between text-sm mt-1">
 										<span className="text-muted-foreground">Sales</span>
-										<span className="font-medium">{asset.sales}</span>
+										<span className="font-medium">0</span>
 									</div>
 								</CardContent>
 								<CardFooter className="p-4 pt-2 flex gap-2">

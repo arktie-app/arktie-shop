@@ -11,14 +11,14 @@ import {
 	CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { ProductImage } from "./product-image";
+import { AssetImage } from "./asset-image";
 
-interface ProductGalleryProps {
+interface AssetGalleryProps {
 	images: string[];
 	name: string;
 }
 
-export function ProductGallery({ images, name }: ProductGalleryProps) {
+export function AssetGallery({ images, name }: AssetGalleryProps) {
 	const [api, setApi] = React.useState<CarouselApi>();
 	const [current, setCurrent] = React.useState(0);
 
@@ -45,7 +45,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
 				<CarouselContent>
 					{images.map((image, index) => (
 						<CarouselItem key={image}>
-							<ProductImage src={image} alt={`${name} - Image ${index + 1}`} />
+							<AssetImage src={image} alt={`${name} - Image ${index + 1}`} />
 						</CarouselItem>
 					))}
 				</CarouselContent>

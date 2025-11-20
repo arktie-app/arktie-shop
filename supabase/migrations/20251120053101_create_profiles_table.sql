@@ -1,5 +1,5 @@
 create table public.profiles (
-    id uuid not null references auth.users on delete cascade,
+    id uuid not null references auth.users on delete cascade primary key,
     username text not null unique,
     avatar_url text,
     created_at timestamp with time zone default timezone('utc'::text, now())
