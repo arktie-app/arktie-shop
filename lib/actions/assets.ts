@@ -21,6 +21,11 @@ export async function createAsset(formData: FormData) {
 	// Status defaults to Draft
 	const status = "Draft";
 
+	const attachmentPath = formData.get("attachment_path") as string;
+	if (!attachmentPath) {
+		throw new Error("Attachment is required");
+	}
+
 	const imageFiles = formData.getAll("images") as File[];
 	const imageUrls: string[] = [];
 
@@ -64,6 +69,7 @@ export async function createAsset(formData: FormData) {
 			price,
 			status,
 			preview_images: imageUrls,
+			attachment_path: attachmentPath,
 			creator_id: user.id,
 		})
 		.select()

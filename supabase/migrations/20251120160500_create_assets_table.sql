@@ -8,6 +8,7 @@ create table if not exists public.assets (
   preview_images text[] not null default '{}',
   creator_id uuid references public.profiles(id) on delete cascade not null,
   status public.asset_status not null default 'Draft',
+  attachment_path text not null,
   created_at timestamp with time zone not null default now(),
   constraint assets_pkey primary key (id)
 );

@@ -16,6 +16,7 @@ export interface Database {
 					description: string | null;
 					price: number;
 					preview_images: string[];
+					attachment_path: string;
 					creator_id: string;
 					status: "Active" | "Draft" | "Archived";
 					created_at: string;
@@ -26,6 +27,7 @@ export interface Database {
 					description?: string | null;
 					price: number;
 					preview_images?: string[];
+					attachment_path: string;
 					creator_id: string;
 					status?: "Active" | "Draft" | "Archived";
 					created_at?: string;
@@ -36,6 +38,7 @@ export interface Database {
 					description?: string | null;
 					price?: number;
 					preview_images?: string[];
+					attachment_path?: string;
 					creator_id?: string;
 					status?: "Active" | "Draft" | "Archived";
 					created_at?: string;

@@ -1,6 +1,7 @@
 "use client";
 
 import { createAsset } from "@/lib/actions/assets";
+import { getSignedUploadToken } from "@/lib/actions/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,9 @@ import { Separator } from "@/components/ui/separator";
 import { AssetGallery } from "../[id]/asset-gallery";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 interface CreateAssetFormProps {
 	userProfile: {
@@ -32,6 +36,8 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 	const [description, setDescription] = useState("");
 	const [images, setImages] = useState<File[]>([]);
 	const [previewImages, setPreviewImages] = useState<string[]>([]);
+	const [attachment, setAttachment] = useState<File | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
 
 	useEffect(() => {
 		const urls = images.map((file) => URL.createObjectURL(file));
@@ -46,6 +52,64 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
 			setImages(Array.from(e.target.files));
+		}
+	};
+
+	const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files?.[0]) {
+			setAttachment(e.target.files[0]);
+		}
+	};
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsUploading(true);
+
+		try {
+			let attachmentPath = "";
+
+			if (attachment) {
+				// Validate attachment
+				if (attachment.size > 1024 * 1024 * 1024) {
+					throw new Error("Attachment exceeds 1GB limit");
+				}
+				if (
+					attachment.type !== "application/zip" &&
+					attachment.type !== "application/x-7z-compressed"
+				) {
+					throw new Error("Attachment must be a .zip or .7z file");
+				}
+
+				const { token, path } = await getSignedUploadToken(attachment.name);
+
+				const supabase = createClient();
+				const { error } = await supabase.storage
+					.from("asset_attachments")
+					.uploadToSignedUrl(path, token, attachment);
+
+				if (error) {
+					console.error("Upload failed:", error);
+					throw new Error("Failed to upload attachment");
+				}
+
+				attachmentPath = path;
+			}
+
+			const formData = new FormData();
+			formData.append("name", name);
+			formData.append("price", price);
+			formData.append("description", description);
+			images.forEach((image) => {
+				formData.append("images", image);
+			});
+			formData.append("attachment_path", attachmentPath);
+
+			await createAsset(formData);
+
+		} catch (error) {
+			console.error("Error creating asset:", error);
+		} finally {
+			setIsUploading(false);
 		}
 	};
 
@@ -68,7 +132,7 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 				</SidebarHeader>
 				<SidebarContent>
 					<form
-						action={createAsset}
+						onSubmit={handleSubmit}
 						id="create-asset-form"
 						className="space-y-6 px-4 pb-4"
 					>
@@ -126,11 +190,31 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 								Max 5 images, 10MB each. Supported formats: JPG, PNG, GIF.
 							</p>
 						</div>
+
+						<div className="space-y-2">
+							<Label htmlFor="attachment">Asset File (ZIP, 7Z)</Label>
+							<Input
+								id="attachment"
+								name="attachment"
+								type="file"
+								accept=".zip,.7z"
+								required
+								onChange={handleAttachmentChange}
+							/>
+							<p className="text-xs text-muted-foreground">
+								Max 1GB. Must be a .zip or .7z file.
+							</p>
+						</div>
 					</form>
 				</SidebarContent>
 				<SidebarFooter className="p-4">
-					<Button type="submit" form="create-asset-form" className="w-full">
-						Create Asset (Draft)
+					<Button
+						type="submit"
+						form="create-asset-form"
+						className="w-full"
+						disabled={isUploading}
+					>
+						{isUploading ? "Creating..." : "Create Asset (Draft)"}
 					</Button>
 				</SidebarFooter>
 			</Sidebar>
