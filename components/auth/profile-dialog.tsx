@@ -188,18 +188,6 @@ export function ProfileDialog({
 									disabled={isLoading}
 								/>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="password" className="text-right">
-									Password
-								</Label>
-								<Input
-									id="password"
-									type="password"
-									placeholder="••••••••"
-									className="col-span-3"
-									disabled={isLoading}
-								/>
-							</div>
 						</div>
 						<DialogFooter>
 							<Button type="submit" onClick={handleSave} disabled={isLoading}>
