@@ -5,7 +5,7 @@ create table if not exists public.assets (
   name text not null,
   description text,
   price numeric(10, 3) not null,
-  images text[] not null default '{}',
+  preview_images text[] not null default '{}',
   creator_id uuid references public.profiles(id) on delete cascade not null,
   status public.asset_status not null default 'Draft',
   created_at timestamp with time zone not null default now(),
@@ -33,3 +33,4 @@ create policy "Users can update their own assets."
 create policy "Users can delete their own assets."
   on public.assets for delete
   using ( auth.uid() = creator_id );
+

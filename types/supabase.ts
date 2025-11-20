@@ -15,7 +15,7 @@ export interface Database {
 					name: string;
 					description: string | null;
 					price: number;
-					images: string[];
+					preview_images: string[];
 					creator_id: string;
 					status: "Active" | "Draft" | "Archived";
 					created_at: string;
@@ -25,7 +25,7 @@ export interface Database {
 					name: string;
 					description?: string | null;
 					price: number;
-					images?: string[];
+					preview_images?: string[];
 					creator_id: string;
 					status?: "Active" | "Draft" | "Archived";
 					created_at?: string;
@@ -35,7 +35,7 @@ export interface Database {
 					name?: string;
 					description?: string | null;
 					price?: number;
-					images?: string[];
+					preview_images?: string[];
 					creator_id?: string;
 					status?: "Active" | "Draft" | "Archived";
 					created_at?: string;

@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	/* config options here */
+	images: {
+		dangerouslyAllowLocalIP: true,
+		remotePatterns: [new URL("http://127.0.0.1:54321/storage/**")],
+	},
 };
 
 export default nextConfig;

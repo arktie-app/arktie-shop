@@ -1,4 +1,12 @@
-import { Download, Edit, MoreVertical, Plus, Settings } from "lucide-react";
+import {
+	Download,
+	Edit,
+	ExternalLink,
+	ExternalLinkIcon,
+	MoreVertical,
+	Plus,
+	Settings,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +19,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserAssets } from "@/lib/assets";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function DashboardPage() {
 	const supabase = await createClient();
@@ -113,10 +122,12 @@ export default async function DashboardPage() {
 								className="group overflow-hidden transition-all hover:shadow-lg"
 							>
 								<div className="aspect-video relative bg-muted overflow-hidden">
-									{asset.images && asset.images.length > 0 ? (
+									{asset.preview_images && asset.preview_images.length > 0 ? (
 										<div
 											className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-											style={{ backgroundImage: `url(${asset.images[0]})` }}
+											style={{
+												backgroundImage: `url(${asset.preview_images[0]})`,
+											}}
 										/>
 									) : (
 										<div className="absolute inset-0 bg-muted flex items-center justify-center text-muted-foreground">
@@ -173,8 +184,15 @@ export default async function DashboardPage() {
 										<Edit className="mr-2 h-3 w-3" />
 										Edit
 									</Button>
-									<Button variant="secondary" size="sm" className="flex-1">
-										Analytics
+									<Button
+										variant="outline"
+										size="sm"
+										className="flex-1"
+										asChild
+									>
+										<Link href={`/assets/${asset.id}`} target="_blank">
+											View Product <ExternalLink className="ml-2 h-3 w-3" />
+										</Link>
 									</Button>
 								</CardFooter>
 							</Card>
@@ -183,11 +201,14 @@ export default async function DashboardPage() {
 						<Button
 							variant="outline"
 							className="h-full min-h-[300px] flex flex-col gap-4 border-dashed hover:border-primary hover:bg-primary/5"
+							asChild
 						>
-							<div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-								<Plus className="h-6 w-6 text-muted-foreground" />
-							</div>
-							<span className="font-medium">Create New Asset</span>
+							<Link href="/assets/create">
+								<div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+									<Plus className="h-6 w-6 text-muted-foreground" />
+								</div>
+								<span className="font-medium">Create New Asset</span>
+							</Link>
 						</Button>
 					</div>
 				</TabsContent>

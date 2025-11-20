@@ -34,7 +34,7 @@ export default async function AssetPage({ params }: AssetPageProps) {
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 				{/* Asset Gallery */}
 				<div className="px-4 md:px-0">
-					<AssetGallery images={asset.images} name={asset.name} />
+					<AssetGallery images={asset.preview_images} name={asset.name} />
 				</div>
 
 				{/* Asset Details */}
@@ -44,28 +44,29 @@ export default async function AssetPage({ params }: AssetPageProps) {
 							{asset.name}
 						</h1>
 						<div className="flex items-center mt-2 space-x-2">
-							{asset.creator.avatar_url && (
-								<Image
-									src={asset.creator.avatar_url}
-									alt={asset.creator.username}
-									width={32}
-									height={32}
-									className="h-8 w-8 rounded-full object-cover"
-								/>
-							)}
-							<p className="text-sm text-muted-foreground">
-								by{" "}
+							<p className="text-sm text-muted-foreground">by </p>
+
+							<div className="flex items-center space-x-1">
+								{asset.creator.avatar_url && (
+									<Image
+										src={asset.creator.avatar_url}
+										alt={asset.creator.username}
+										width={32}
+										height={32}
+										className="h-8 w-8 rounded-full object-cover"
+									/>
+								)}
 								<Link
 									href={`/users/@${asset.creator.username}`}
 									className="text-primary hover:underline"
 								>
 									{asset.creator.username}
 								</Link>
-							</p>
+							</div>
 						</div>
 
 						<p className="mt-4 text-2xl font-bold text-primary">
-							¥{asset.price.toLocaleString()}
+							¥{asset.price.toFixed(2)}
 						</p>
 					</div>
 
