@@ -35,6 +35,9 @@ export async function signup(formData: FormData) {
 		password,
 		options: {
 			emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/auth/callback`,
+			data: {
+				username: email.split("@")[0],
+			},
 		},
 	});
 

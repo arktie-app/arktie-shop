@@ -33,9 +33,7 @@ export function ProfileDialog({
 	open,
 	onOpenChange,
 }: ProfileDialogProps) {
-	const [username, setUsername] = useState(
-		user.user_metadata.full_name || "User",
-	);
+	const [username, setUsername] = useState(user.user_metadata.username);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
