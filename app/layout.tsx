@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 		"Premium digital assets for creators. Illustrations, 3D models, and more.",
 };
 
+import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({
@@ -36,6 +37,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<main className="relative flex min-h-screen flex-col">
+						<SiteHeader />
 						{children}
 					</main>
 				</ThemeProvider>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, User as UserIcon } from "lucide-react";
 import { signout } from "@/app/auth/actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,12 @@ export function UserNav({ user }: UserNavProps) {
 					<DropdownMenuItem>
 						<UserIcon className="mr-2 h-4 w-4" />
 						<span>Profile</span>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<a href="/dashboard" className="w-full cursor-pointer">
+							<LayoutDashboard className="mr-2 h-4 w-4" />
+							<span>Dashboard</span>
+						</a>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
