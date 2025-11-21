@@ -2,9 +2,9 @@
 
 import {
 	Archive,
+	Copy,
 	Edit,
 	ExternalLink,
-	FileText,
 	MoreVertical,
 	Plus,
 	Trash2,
@@ -35,7 +35,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteAsset, updateAssetStatus } from "./actions";
+import { deleteAsset, duplicateAsset, updateAssetStatus } from "./actions";
 import type { AssetWithCreator } from "@/lib/assets";
 
 interface AssetGridProps {
@@ -90,10 +90,10 @@ export function AssetGrid({
 									{asset.status === "Archived" && (
 										<>
 											<DropdownMenuItem
-												onClick={() => updateAssetStatus(asset.id, "Draft")}
+												onClick={() => duplicateAsset(asset.id)}
 											>
-												<FileText className="mr-2 h-4 w-4" />
-												Move to Draft
+												<Copy className="mr-2 h-4 w-4" />
+												Duplicate as Draft
 											</DropdownMenuItem>
 											<AlertDialog>
 												<AlertDialogTrigger asChild>
@@ -166,16 +166,46 @@ export function AssetGrid({
 							<span className="font-medium">0</span>
 						</div>
 					</CardContent>
-					<CardFooter className="p-4 pt-2 flex gap-2">
-						<Button variant="outline" size="sm" className="flex-1">
-							<Edit className="mr-2 h-3 w-3" />
-							Edit
-						</Button>
-						<Button variant="outline" size="sm" className="flex-1" asChild>
-							<Link href={`/assets/${asset.id}`} target="_blank">
-								View Product <ExternalLink className="ml-2 h-3 w-3" />
-							</Link>
-						</Button>
+					<CardFooter className="p-4 pt-2 flex flex-col gap-2">
+						<div className="flex w-full gap-2">
+							<Button variant="outline" size="sm" className="flex-1">
+								<Edit className="mr-2 h-3 w-3" />
+								Edit
+							</Button>
+							<Button variant="outline" size="sm" className="flex-1" asChild>
+								<Link href={`/assets/${asset.id}`} target="_blank">
+									View Product <ExternalLink className="ml-2 h-3 w-3" />
+								</Link>
+							</Button>
+						</div>
+						{asset.status === "Draft" && (
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button size="sm" className="w-full">
+										<ExternalLink className="mr-2 h-3 w-3" />
+										Publish
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Ready to publish?</AlertDialogTitle>
+										<AlertDialogDescription>
+											This action cannot be undone. Once published, the asset
+											will be live and immutable. You won't be able to change it
+											back to draft.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => updateAssetStatus(asset.id, "Active")}
+										>
+											Publish
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						)}
 					</CardFooter>
 				</Card>
 			))}
