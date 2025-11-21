@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CreateAssetForm } from "./create-asset-form";
+import { AssetForm } from "../_components/asset-form";
 
 export default async function CreateAssetPage() {
 	const supabase = await createClient();
@@ -23,5 +23,5 @@ export default async function CreateAssetPage() {
 		return redirect("/");
 	}
 
-	return <CreateAssetForm userProfile={profile} />;
+	return <AssetForm userProfile={profile} />;
 }

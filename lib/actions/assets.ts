@@ -84,3 +84,101 @@ export async function createAsset(formData: FormData) {
 	revalidatePath("/");
 	redirect(`/assets/${data.id}`);
 }
+
+export async function updateAsset(formData: FormData) {
+	const supabase = await createClient();
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		throw new Error("User not authenticated");
+	}
+
+	const id = formData.get("id") as string;
+	if (!id) throw new Error("Asset ID is required");
+
+	const name = formData.get("name") as string;
+	const description = formData.get("description") as string;
+	const price = Number(formData.get("price"));
+	const attachmentPath = formData.get("attachment_path") as string;
+
+	// Fetch existing asset to check ownership and get current images
+	const { data: existingAsset, error: fetchError } = await supabase
+		.from("assets")
+		.select("*")
+		.eq("id", id)
+		.single();
+
+	if (fetchError || !existingAsset) {
+		throw new Error("Asset not found");
+	}
+
+	if (existingAsset.creator_id !== user.id) {
+		throw new Error("Unauthorized");
+	}
+
+	const imageFiles = formData.getAll("images") as File[];
+	const newImageUrls: string[] = [];
+
+	// Validate and upload new images
+	for (const file of imageFiles) {
+		// Skip if it's not a file (e.g. empty string from empty input)
+		if (!(file instanceof File) || file.size === 0) continue;
+
+		if (file.size > 10 * 1024 * 1024) {
+			throw new Error(`File ${file.name} exceeds 10MB limit`);
+		}
+		if (!file.type.startsWith("image/")) {
+			throw new Error(`File ${file.name} is not an image`);
+		}
+
+		const fileExt = file.name.split(".").pop();
+		const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+		const { error: uploadError } = await supabase.storage
+			.from("asset_preview")
+			.upload(fileName, file);
+
+		if (uploadError) {
+			console.error("Error uploading image:", uploadError);
+			throw new Error("Failed to upload image");
+		}
+
+		const {
+			data: { publicUrl },
+		} = supabase.storage.from("asset_preview").getPublicUrl(fileName);
+
+		newImageUrls.push(publicUrl);
+	}
+
+	// Combine existing images with new ones
+	// Note: This logic assumes we keep all existing images and append new ones.
+	// If we wanted to support deletion, we'd need a way to pass which images to keep.
+	const updatedPreviewImages = [
+		...(existingAsset.preview_images || []),
+		...newImageUrls,
+	];
+
+	const { error } = await supabase
+		.from("assets")
+		.update({
+			name,
+			description,
+			price,
+			// Update attachment path only if a new one was uploaded (non-empty string)
+			...(attachmentPath ? { attachment_path: attachmentPath } : {}),
+			preview_images: updatedPreviewImages,
+		})
+		.eq("id", id);
+
+	if (error) {
+		console.error("Error updating asset:", error);
+		throw new Error("Failed to update asset");
+	}
+
+	revalidatePath("/dashboard");
+	revalidatePath(`/assets/${id}`);
+	redirect(`/assets/${id}`);
+}
