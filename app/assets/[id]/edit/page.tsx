@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
+import { getAsset } from "@/lib/assets";
 import { createClient } from "@/lib/supabase/server";
 import { AssetForm } from "../../_components/asset-form";
-import { getAsset } from "@/lib/assets";
 
 interface EditAssetPageProps {
 	params: Promise<{

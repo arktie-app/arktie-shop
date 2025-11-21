@@ -1,11 +1,25 @@
 "use client";
 
+import { Image as ImageIcon, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+	ImageCrop,
+	ImageCropApply,
+	ImageCropContent,
+	ImageCropReset,
+} from "@/components/ui/shadcn-io/image-crop";
 import {
 	Sidebar,
 	SidebarContent,
@@ -18,23 +32,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createAsset, updateAsset } from "@/lib/actions/assets";
 import { getSignedUploadToken } from "@/lib/actions/storage";
+import type { AssetWithCreator } from "@/lib/assets";
 import { createClient } from "@/lib/supabase/client";
 import { AssetGallery } from "../[id]/asset-gallery";
-import type { AssetWithCreator } from "@/lib/assets";
-import {
-	ImageCrop,
-	ImageCropApply,
-	ImageCropContent,
-	ImageCropReset,
-} from "@/components/ui/shadcn-io/image-crop";
-import { X, Plus, Image as ImageIcon } from "lucide-react";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface AssetFormProps {
 	userProfile: {
@@ -81,6 +81,7 @@ export function AssetForm({
 	const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
 
 	// Cleanup object URLs on unmount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally omit 'images' from dependency array to only run on unmount
 	useEffect(() => {
 		return () => {
 			images.forEach((img) => {
@@ -89,8 +90,6 @@ export function AssetForm({
 				}
 			});
 		};
-		// We intentionally omit 'images' from dependency array to only run on unmount
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -10,7 +10,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -22,6 +21,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -35,8 +35,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteAsset, duplicateAsset, updateAssetStatus } from "./actions";
 import type { AssetWithCreator } from "@/lib/assets";
+import { deleteAsset, duplicateAsset, updateAssetStatus } from "./actions";
 
 interface AssetGridProps {
 	assets: AssetWithCreator[];
