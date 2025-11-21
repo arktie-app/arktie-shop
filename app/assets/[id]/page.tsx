@@ -71,11 +71,9 @@ export default async function AssetPage({ params }: AssetPageProps) {
 					</div>
 
 					<div>
-						<Link href={`/assets/${id}/buy`}>
-							<Button size="lg" className="w-full md:w-auto text-lg px-8">
-								Buy Now
-							</Button>
-						</Link>
+						<Button size="lg" className="w-full md:w-auto text-lg px-8">
+							Buy Now
+						</Button>
 					</div>
 
 					<div className="space-y-4">
