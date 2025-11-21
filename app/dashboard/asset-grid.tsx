@@ -1,6 +1,27 @@
-import { Edit, ExternalLink, MoreVertical, Plus } from "lucide-react";
+"use client";
+
+import {
+	Archive,
+	Edit,
+	ExternalLink,
+	FileText,
+	MoreVertical,
+	Plus,
+	Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
 	Card,
 	CardContent,
@@ -8,6 +29,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { deleteAsset, updateAssetStatus } from "./actions";
 import type { AssetWithCreator } from "@/lib/assets";
 
 interface AssetGridProps {
@@ -40,22 +68,78 @@ export function AssetGrid({
 							</div>
 						)}
 						<div className="absolute top-2 right-2">
-							<Button
-								variant="secondary"
-								size="icon"
-								className="h-8 w-8 backdrop-blur-md bg-background/50"
-							>
-								<MoreVertical className="h-4 w-4" />
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="secondary"
+										size="icon"
+										className="h-8 w-8 backdrop-blur-md bg-background/50"
+									>
+										<MoreVertical className="h-4 w-4" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									{asset.status !== "Archived" && (
+										<DropdownMenuItem
+											onClick={() => updateAssetStatus(asset.id, "Archived")}
+										>
+											<Archive className="mr-2 h-4 w-4" />
+											Archive
+										</DropdownMenuItem>
+									)}
+									{asset.status === "Archived" && (
+										<>
+											<DropdownMenuItem
+												onClick={() => updateAssetStatus(asset.id, "Draft")}
+											>
+												<FileText className="mr-2 h-4 w-4" />
+												Move to Draft
+											</DropdownMenuItem>
+											<AlertDialog>
+												<AlertDialogTrigger asChild>
+													<DropdownMenuItem
+														className="text-destructive focus:text-destructive"
+														onSelect={(e) => e.preventDefault()}
+													>
+														<Trash2 className="mr-2 h-4 w-4" />
+														Delete Permanently
+													</DropdownMenuItem>
+												</AlertDialogTrigger>
+												<AlertDialogContent>
+													<AlertDialogHeader>
+														<AlertDialogTitle>
+															Are you absolutely sure?
+														</AlertDialogTitle>
+														<AlertDialogDescription>
+															This action cannot be undone. This will
+															permanently delete your asset and remove it from
+															our servers.
+														</AlertDialogDescription>
+													</AlertDialogHeader>
+													<AlertDialogFooter>
+														<AlertDialogCancel>Cancel</AlertDialogCancel>
+														<AlertDialogAction
+															className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+															onClick={() => deleteAsset(asset.id)}
+														>
+															Delete
+														</AlertDialogAction>
+													</AlertDialogFooter>
+												</AlertDialogContent>
+											</AlertDialog>
+										</>
+									)}
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 						<div className="absolute bottom-2 left-2">
 							<span
 								className={`px-2 py-1 rounded text-xs font-medium backdrop-blur-md ${
 									asset.status === "Active"
-										? "bg-green-500/20 text-green-500"
+										? "bg-green-700/20 text-green-700"
 										: asset.status === "Draft"
-											? "bg-yellow-500/20 text-yellow-500"
-											: "bg-gray-500/20 text-gray-500"
+											? "bg-yellow-700/20 text-yellow-700"
+											: "bg-gray-700/20 text-gray-700"
 								}`}
 							>
 								{asset.status}
