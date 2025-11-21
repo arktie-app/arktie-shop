@@ -31,3 +31,17 @@ export async function getSignedUploadToken(fileName: string) {
 		token: data.token,
 	};
 }
+
+export async function getSignedDownloadUrl(path: string) {
+	const supabase = await createClient();
+
+	const { data, error } = await supabase.storage
+		.from("asset_attachments")
+		.createSignedUrl(path, 60 * 24);
+	if (error) {
+		console.error("Error creating signed download URL:", error);
+		throw new Error("Failed to create download URL");
+	}
+
+	return data.signedUrl;
+}

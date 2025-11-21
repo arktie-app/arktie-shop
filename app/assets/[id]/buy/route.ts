@@ -16,6 +16,7 @@ import {
 	SupportedEVMNetworks,
 } from "x402/types";
 import { useFacilitator } from "x402/verify";
+import { getSignedDownloadUrl } from "@/lib/actions/storage";
 import { getAsset } from "@/lib/assets";
 
 const facilitatorConfig: FacilitatorConfig = {
@@ -167,5 +168,25 @@ export async function GET(
 		);
 	}
 
-	return NextResponse.json({ message: "Hello World" });
+	return new NextResponse(
+		getDownloadHtml(await getSignedDownloadUrl(product.attachment_path)),
+		{
+			status: 200,
+			headers: { "Content-Type": "text/html" },
+		},
+	);
+}
+
+function getDownloadHtml(url: string): string {
+	return `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>Download</title>
+		</head>
+		<body>
+			<a href="${url}">Download</a>
+		</body>
+		</html>
+	`;
 }
