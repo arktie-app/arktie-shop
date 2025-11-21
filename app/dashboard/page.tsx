@@ -34,7 +34,7 @@ export default async function DashboardPage() {
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
-					<Button variant="outline">
+					<Button variant="outline" disabled>
 						<Settings className="mr-2 h-4 w-4" />
 						Settings
 					</Button>

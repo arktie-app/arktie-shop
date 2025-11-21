@@ -18,7 +18,7 @@ export default function Home() {
 							The premier marketplace for creators. Illustrations, 3D models,
 							photography, and more. Join the Arktie community today.
 						</p>
-						<div className="mt-8 flex space-x-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+						{/* <div className="mt-8 flex space-x-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
 							<Button size="lg" className="rounded-full text-lg px-8">
 								Explore Shop
 							</Button>
@@ -29,62 +29,14 @@ export default function Home() {
 							>
 								Start Selling
 							</Button>
-						</div>
+						</div> */}
 					</div>
 					{/* Decorative Background Elements */}
 					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
 				</section>
 
 				{/* Featured Assets Section */}
-				<section className="py-16 container mx-auto px-4">
-					<div className="flex items-center justify-between mb-8">
-						<h2 className="text-3xl font-bold tracking-tight">
-							Featured Assets
-						</h2>
-						<Button variant="link" className="text-primary">
-							View all
-						</Button>
-					</div>
-
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-						{/* Dummy Data */}
-						{Array.from({ length: 8 }).map((_, i) => {
-							return (
-								<Card
-									// biome-ignore lint/suspicious/noArrayIndexKey: Dummy data
-									key={i}
-									className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group bg-card/50 backdrop-blur-sm"
-								>
-									<div className="aspect-3/4 relative bg-muted overflow-hidden">
-										{/* Placeholder for asset image */}
-										<div className="absolute inset-0 bg-linear-to-tr from-primary/20 to-secondary/20 group-hover:scale-105 transition-transform duration-500" />
-										<div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-md">
-											Illustration
-										</div>
-									</div>
-									<CardHeader className="p-4 pb-0">
-										<CardTitle className="text-lg truncate">
-											Cyberpunk Cityscape Vol. {i + 1}
-										</CardTitle>
-										<p className="text-sm text-muted-foreground">
-											by ArktieCreator
-										</p>
-									</CardHeader>
-									<CardFooter className="p-4 flex items-center justify-between">
-										<span className="font-bold text-lg">$1500.00</span>
-										<Button
-											size="sm"
-											variant="secondary"
-											className="rounded-full"
-										>
-											Add
-										</Button>
-									</CardFooter>
-								</Card>
-							);
-						})}
-					</div>
-				</section>
+				{/* <FeatureSection /> */}
 			</main>
 
 			<footer className="border-t py-8 bg-secondary/30">
@@ -106,5 +58,53 @@ export default function Home() {
 				</div>
 			</footer>
 		</div>
+	);
+}
+
+function FeatureSection() {
+	return (
+		<section className="py-16 container mx-auto px-4">
+			<div className="flex items-center justify-between mb-8">
+				<h2 className="text-3xl font-bold tracking-tight">Featured Assets</h2>
+				<Button variant="link" className="text-primary">
+					View all
+				</Button>
+			</div>
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+				{/* Dummy Data */}
+				{Array.from({ length: 8 }).map((_, i) => {
+					return (
+						<Card
+							// biome-ignore lint/suspicious/noArrayIndexKey: Dummy data
+							key={i}
+							className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group bg-card/50 backdrop-blur-sm"
+						>
+							<div className="aspect-3/4 relative bg-muted overflow-hidden">
+								{/* Placeholder for asset image */}
+								<div className="absolute inset-0 bg-linear-to-tr from-primary/20 to-secondary/20 group-hover:scale-105 transition-transform duration-500" />
+								<div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-md">
+									Illustration
+								</div>
+							</div>
+							<CardHeader className="p-4 pb-0">
+								<CardTitle className="text-lg truncate">
+									Cyberpunk Cityscape Vol. {i + 1}
+								</CardTitle>
+								<p className="text-sm text-muted-foreground">
+									by ArktieCreator
+								</p>
+							</CardHeader>
+							<CardFooter className="p-4 flex items-center justify-between">
+								<span className="font-bold text-lg">$1,500.00</span>
+								<Button size="sm" variant="secondary" className="rounded-full">
+									Add
+								</Button>
+							</CardFooter>
+						</Card>
+					);
+				})}
+			</div>
+		</section>
 	);
 }
