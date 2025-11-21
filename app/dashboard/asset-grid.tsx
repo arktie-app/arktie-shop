@@ -54,7 +54,7 @@ export function AssetGrid({
 					key={asset.id}
 					className="group overflow-hidden transition-all hover:shadow-lg"
 				>
-					<div className="aspect-video relative bg-muted overflow-hidden">
+					<div className="aspect-square relative bg-muted overflow-hidden">
 						{asset.preview_images && asset.preview_images.length > 0 ? (
 							<div
 								className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
@@ -152,7 +152,6 @@ export function AssetGrid({
 								<CardTitle className="text-base line-clamp-1">
 									{asset.name}
 								</CardTitle>
-								<p className="text-xs text-muted-foreground mt-1">Asset</p>
 							</div>
 						</div>
 					</CardHeader>

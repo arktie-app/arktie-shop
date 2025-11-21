@@ -21,6 +21,20 @@ import { getSignedUploadToken } from "@/lib/actions/storage";
 import { createClient } from "@/lib/supabase/client";
 import { AssetGallery } from "../[id]/asset-gallery";
 import type { AssetWithCreator } from "@/lib/assets";
+import {
+	ImageCrop,
+	ImageCropApply,
+	ImageCropContent,
+	ImageCropReset,
+} from "@/components/ui/shadcn-io/image-crop";
+import { X, Plus, Image as ImageIcon } from "lucide-react";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface AssetFormProps {
 	userProfile: {
@@ -30,6 +44,11 @@ interface AssetFormProps {
 	initialData?: AssetWithCreator;
 	assetId?: string;
 }
+
+// Helper type to manage mixed images (existing URLs and new Files)
+type ImageItem =
+	| { type: "url"; url: string; id: string }
+	| { type: "file"; file: File; previewUrl: string; id: string };
 
 export function AssetForm({
 	userProfile,
@@ -41,55 +60,84 @@ export function AssetForm({
 	const [description, setDescription] = useState(
 		initialData?.description || "",
 	);
-	const [images, setImages] = useState<File[]>([]);
-	const [previewImages, setPreviewImages] = useState<string[]>(
-		initialData?.preview_images || [],
-	);
+
+	// State for managing images
+	const [images, setImages] = useState<ImageItem[]>(() => {
+		if (initialData?.preview_images) {
+			return initialData.preview_images.map((url) => ({
+				type: "url",
+				url,
+				id: `url-${url}`, // Simple unique ID for existing URLs
+			}));
+		}
+		return [];
+	});
+
 	const [attachment, setAttachment] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
+	// Cropper state
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
+
+	// Cleanup object URLs on unmount
 	useEffect(() => {
-		// Create object URLs for new files
-		const newUrls = images.map((file) => URL.createObjectURL(file));
-
-		// Combine existing images (if any) with new ones for preview
-		// Note: This simple logic appends new images.
-		// For a full edit experience, we might want to allow removing existing images.
-		// For now, we'll just show what we have.
-		// If initialData exists, we start with its images.
-		// If user adds more, we append.
-		// Ideally, we should handle "replacing" or "appending" better,
-		// but for MVP "Edit" might just be "Update text fields" or "Replace all images".
-		// Let's stick to: if you upload new images, they are added to the preview list for visualization.
-		// But the backend logic might need to know if we are keeping old ones.
-		// The current create logic uploads all `images`.
-		// For update, we probably want to keep old ones unless explicitly removed?
-		// Or maybe we just allow adding more?
-		// Let's assume for now the user can add more images.
-
-		// Actually, to keep it simple and consistent with "Create":
-		// If the user selects new images, we might want to replace the preview or append?
-		// Let's append for preview purposes.
-
-		setPreviewImages([...(initialData?.preview_images || []), ...newUrls]);
-
 		return () => {
-			newUrls.forEach((url) => {
-				URL.revokeObjectURL(url);
+			images.forEach((img) => {
+				if (img.type === "file") {
+					URL.revokeObjectURL(img.previewUrl);
+				}
 			});
 		};
-	}, [images, initialData?.preview_images]);
-
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			setImages(Array.from(e.target.files));
-		}
-	};
+		// We intentionally omit 'images' from dependency array to only run on unmount
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files?.[0]) {
 			setAttachment(e.target.files[0]);
 		}
+	};
+
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files?.[0]) {
+			setSelectedFile(e.target.files[0]);
+			setIsCropDialogOpen(true);
+			// Reset input value so same file can be selected again if needed
+			e.target.value = "";
+		}
+	};
+
+	const handleCropComplete = async (croppedImageUrl: string) => {
+		// Convert blob URL to File object
+		try {
+			const response = await fetch(croppedImageUrl);
+			const blob = await response.blob();
+			const file = new File([blob], selectedFile?.name || "image.png", {
+				type: "image/png",
+			});
+
+			// Create a persistent preview URL for our list
+			const previewUrl = URL.createObjectURL(file);
+			const id = `file-${Date.now()}-${Math.random()}`;
+
+			setImages((prev) => [...prev, { type: "file", file, previewUrl, id }]);
+			setIsCropDialogOpen(false);
+			setSelectedFile(null);
+		} catch (error) {
+			console.error("Error processing cropped image:", error);
+		}
+	};
+
+	const removeImage = (index: number) => {
+		setImages((prev) => {
+			const newImages = [...prev];
+			const removed = newImages.splice(index, 1)[0];
+			if (removed.type === "file") {
+				URL.revokeObjectURL(removed.previewUrl);
+			}
+			return newImages;
+		});
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -131,21 +179,37 @@ export function AssetForm({
 			formData.append("price", price);
 			formData.append("description", description);
 
-			// Append new images
-			images.forEach((image) => {
-				formData.append("images", image);
+			// Handle images
+			const existingUrls = images
+				.filter(
+					(img): img is { type: "url"; url: string; id: string } =>
+						img.type === "url",
+				)
+				.map((img) => img.url);
+
+			formData.append("existing_images", JSON.stringify(existingUrls));
+
+			const newFiles = images
+				.filter(
+					(
+						img,
+					): img is {
+						type: "file";
+						file: File;
+						previewUrl: string;
+						id: string;
+					} => img.type === "file",
+				)
+				.map((img) => img.file);
+
+			newFiles.forEach((file) => {
+				formData.append("images", file);
 			});
 
 			formData.append("attachment_path", attachmentPath);
 
 			if (assetId) {
 				formData.append("id", assetId);
-				// We might need to handle existing images preservation in the server action
-				// For now, let's assume the server action handles merging or we send existing images?
-				// The current `createAsset` uploads everything.
-				// `updateAsset` will need to know about existing images if we want to keep them.
-				// Let's pass existing images as a JSON string if needed, or handle it on server.
-				// For this iteration, let's assume we just update text and add new images/attachment if provided.
 				await updateAsset(formData);
 			} else {
 				await createAsset(formData);
@@ -158,6 +222,11 @@ export function AssetForm({
 	};
 
 	const isEditing = !!assetId;
+
+	// Prepare preview images for the gallery (strings only)
+	const galleryPreviewImages = images.map((img) =>
+		img.type === "url" ? img.url : img.previewUrl,
+	);
 
 	return (
 		<SidebarProvider
@@ -224,20 +293,78 @@ export function AssetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="images">Asset Previews</Label>
-							<Input
-								id="images"
-								name="images"
-								type="file"
-								accept="image/*"
-								multiple
-								required={!isEditing} // Not required if editing (already has images)
-								onChange={handleImageChange}
-							/>
+							<Label>Asset Previews</Label>
+							<div className="grid grid-cols-3 gap-2 mb-2">
+								{images.map((img, index) => (
+									<div
+										key={img.id}
+										className="relative aspect-square group rounded-md overflow-hidden border bg-muted"
+									>
+										<Image
+											src={img.type === "url" ? img.url : img.previewUrl}
+											alt={`Preview ${index + 1}`}
+											fill
+											className="object-cover"
+										/>
+										<button
+											type="button"
+											onClick={() => removeImage(index)}
+											className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+										>
+											<X className="h-3 w-3" />
+										</button>
+									</div>
+								))}
+								<Dialog
+									open={isCropDialogOpen}
+									onOpenChange={setIsCropDialogOpen}
+								>
+									<DialogTrigger asChild>
+										<button
+											type="button"
+											className="aspect-square border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors w-full"
+											onClick={() =>
+												document.getElementById("image-upload-trigger")?.click()
+											}
+										>
+											<Plus className="h-6 w-6 text-muted-foreground mb-1" />
+											<span className="text-xs text-muted-foreground">Add</span>
+										</button>
+									</DialogTrigger>
+									<DialogContent className="sm:max-w-[600px]">
+										<DialogHeader>
+											<DialogTitle>Crop Image</DialogTitle>
+										</DialogHeader>
+										<div className="py-4">
+											{selectedFile && (
+												<ImageCrop
+													file={selectedFile}
+													aspect={1}
+													onCrop={handleCropComplete}
+												>
+													<div className="flex flex-col items-center gap-4">
+														<ImageCropContent />
+														<div className="flex gap-2">
+															<ImageCropReset />
+															<ImageCropApply>Crop & Add</ImageCropApply>
+														</div>
+													</div>
+												</ImageCrop>
+											)}
+										</div>
+									</DialogContent>
+								</Dialog>
+								{/* Hidden input for file selection */}
+								<Input
+									id="image-upload-trigger"
+									type="file"
+									accept="image/*"
+									className="hidden"
+									onChange={handleFileSelect}
+								/>
+							</div>
 							<p className="text-xs text-muted-foreground">
-								Max 5 images, 10MB each. Supported formats: JPG, PNG, GIF.
-								{isEditing &&
-									" Uploading new images will add to existing ones."}
+								Max 5 images. Supported formats: JPG, PNG, GIF.
 							</p>
 						</div>
 
@@ -286,14 +413,19 @@ export function AssetForm({
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 							{/* Asset Gallery */}
 							<div className="px-4 md:px-0">
-								{previewImages.length > 0 ? (
+								{galleryPreviewImages.length > 0 ? (
 									<AssetGallery
-										images={previewImages}
+										images={galleryPreviewImages}
 										name={name || "Asset Name"}
 									/>
 								) : (
 									<div className="aspect-square bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-										No images selected
+										<div className="flex flex-col items-center gap-2">
+											<ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+											<span className="text-sm text-muted-foreground">
+												No images selected
+											</span>
+										</div>
 									</div>
 								)}
 							</div>

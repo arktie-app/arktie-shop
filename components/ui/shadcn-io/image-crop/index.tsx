@@ -65,9 +65,9 @@ const getCroppedPngImage = async (
 	const scaleX = imageSrc.naturalWidth / imageSrc.width;
 	const scaleY = imageSrc.naturalHeight / imageSrc.height;
 
-	ctx.imageSmoothingEnabled = false;
-	canvas.width = pixelCrop.width;
-	canvas.height = pixelCrop.height;
+	ctx.imageSmoothingEnabled = true;
+	canvas.width = Math.floor(pixelCrop.width * scaleX * scaleFactor);
+	canvas.height = Math.floor(pixelCrop.height * scaleY * scaleFactor);
 
 	ctx.drawImage(
 		imageSrc,

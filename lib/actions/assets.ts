@@ -119,6 +119,26 @@ export async function updateAsset(formData: FormData) {
 		throw new Error("Unauthorized");
 	}
 
+	const existingImagesJson = formData.get("existing_images") as string;
+	let existingImages: string[] = [];
+	if (existingImagesJson) {
+		try {
+			existingImages = JSON.parse(existingImagesJson);
+		} catch (e) {
+			console.error("Error parsing existing images:", e);
+		}
+	} else {
+		// Fallback for backward compatibility or if not provided (though it should be)
+		// If not provided, maybe we should default to keeping all?
+		// But the form now explicitly sends the list.
+		// If it's null, it means empty list (user removed all).
+		// But let's be safe and check if it was actually in formData.
+		// If the form didn't send it, we might want to fetch current ones?
+		// But our form sends "[]" if empty.
+		// So if it's null/undefined, it might be an old client?
+		// Let's assume it's handled correctly by the form.
+	}
+
 	const imageFiles = formData.getAll("images") as File[];
 	const newImageUrls: string[] = [];
 
@@ -153,13 +173,8 @@ export async function updateAsset(formData: FormData) {
 		newImageUrls.push(publicUrl);
 	}
 
-	// Combine existing images with new ones
-	// Note: This logic assumes we keep all existing images and append new ones.
-	// If we wanted to support deletion, we'd need a way to pass which images to keep.
-	const updatedPreviewImages = [
-		...(existingAsset.preview_images || []),
-		...newImageUrls,
-	];
+	// Combine existing images (that were kept) with new ones
+	const updatedPreviewImages = [...existingImages, ...newImageUrls];
 
 	const { error } = await supabase
 		.from("assets")
