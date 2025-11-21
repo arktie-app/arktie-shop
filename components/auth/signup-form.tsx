@@ -1,26 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { signup } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function SignupForm() {
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	async function handleSubmit(formData: FormData) {
-		setLoading(true);
-		setError(null);
-		setSuccess(null);
-		const result = await signup(formData);
-		if (result?.error) {
-			setError(result.error);
-			setLoading(false);
-		} else if (result?.success) {
-			setSuccess(result.message || "Account created successfully!");
+		try {
+			setLoading(true);
+			const result = await signup(formData);
+			if (result.error) throw result.error;
+
+			toast.success(result.message || "Account created successfully!");
+		} catch (error) {
+			console.error(error);
+			toast.error("Failed to create account");
+		} finally {
 			setLoading(false);
 		}
 	}
@@ -50,12 +50,6 @@ export function SignupForm() {
 					disabled={loading}
 				/>
 			</div>
-			{error && <div className="text-sm text-destructive">{error}</div>}
-			{success && (
-				<div className="text-sm text-green-600 dark:text-green-400">
-					{success}
-				</div>
-			)}
 			<Button type="submit" className="w-full" disabled={loading}>
 				{loading ? "Creating account..." : "Sign up"}
 			</Button>

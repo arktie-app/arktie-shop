@@ -1,21 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { login } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
-	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	async function handleSubmit(formData: FormData) {
-		setLoading(true);
-		setError(null);
-		const result = await login(formData);
-		if (result?.error) {
-			setError(result.error);
+		try {
+			setLoading(true);
+			const result = await login(formData);
+			if (result.error) throw result.error;
+		} catch (error) {
+			toast.error(`Failed to sign in: ${error}`);
+		} finally {
 			setLoading(false);
 		}
 	}
@@ -44,7 +46,6 @@ export function LoginForm() {
 					disabled={loading}
 				/>
 			</div>
-			{error && <div className="text-sm text-destructive">{error}</div>}
 			<Button type="submit" className="w-full" disabled={loading}>
 				{loading ? "Signing in..." : "Sign in"}
 			</Button>

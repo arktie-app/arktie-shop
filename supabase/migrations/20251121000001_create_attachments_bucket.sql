@@ -1,5 +1,5 @@
-insert into storage.buckets (id, name, public)
-values ('asset_attachments', 'asset_attachments', false);
+insert into storage.buckets (id, name, file_size_limit, allowed_mime_types, public)
+values ('asset_attachments', 'asset_attachments', 1024 * 1024 * 1024, ARRAY['application/zip', 'application/x-7z-compressed'], false);
 
 create policy "Authenticated users can upload asset attachments"
 on storage.objects for insert
