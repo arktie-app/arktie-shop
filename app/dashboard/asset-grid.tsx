@@ -75,7 +75,7 @@ export function AssetGrid({
 					<CardContent className="p-4 pt-0 pb-2">
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Price</span>
-							<span className="font-medium">¥{asset.price}</span>
+							<span className="font-medium">${asset.price.toFixed(2)}</span>
 						</div>
 						<div className="flex justify-between text-sm mt-1">
 							<span className="text-muted-foreground">Sales</span>

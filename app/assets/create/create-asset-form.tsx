@@ -1,11 +1,11 @@
 "use client";
 
-import { createAsset } from "@/lib/actions/assets";
-import { getSignedUploadToken } from "@/lib/actions/storage";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
 	Sidebar,
 	SidebarContent,
@@ -15,13 +15,11 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import { AssetGallery } from "../[id]/asset-gallery";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { createAsset } from "@/lib/actions/assets";
+import { getSignedUploadToken } from "@/lib/actions/storage";
 import { createClient } from "@/lib/supabase/client";
-import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { AssetGallery } from "../[id]/asset-gallery";
 
 interface CreateAssetFormProps {
 	userProfile: {
@@ -105,7 +103,6 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 			formData.append("attachment_path", attachmentPath);
 
 			await createAsset(formData);
-
 		} catch (error) {
 			console.error("Error creating asset:", error);
 		} finally {
@@ -149,7 +146,7 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="price">Price (¥)</Label>
+							<Label htmlFor="price">Price ($)</Label>
 							<Input
 								id="price"
 								name="price"
@@ -268,7 +265,7 @@ export function CreateAssetForm({ userProfile }: CreateAssetFormProps) {
 									</div>
 
 									<p className="mt-4 text-2xl font-bold text-primary">
-										¥{price ? Number.parseFloat(price).toFixed(2) : "0.00"}
+										${price ? Number.parseFloat(price).toFixed(2) : "0.00"}
 									</p>
 								</div>
 

@@ -66,7 +66,7 @@ export default async function AssetPage({ params }: AssetPageProps) {
 						</div>
 
 						<p className="mt-4 text-2xl font-bold text-primary">
-							¥{asset.price.toFixed(2)}
+							${asset.price.toFixed(2)}
 						</p>
 					</div>
 

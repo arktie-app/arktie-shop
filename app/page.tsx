@@ -71,7 +71,7 @@ export default function Home() {
 										</p>
 									</CardHeader>
 									<CardFooter className="p-4 flex items-center justify-between">
-										<span className="font-bold text-lg">¥1,500</span>
+										<span className="font-bold text-lg">$1500.00</span>
 										<Button
 											size="sm"
 											variant="secondary"

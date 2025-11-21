@@ -16,7 +16,7 @@ export async function SiteHeader() {
 			<div className="container mx-auto flex h-16 items-center justify-between px-4">
 				<div className="mr-4 flex items-center space-x-2">
 					<a href="/" className="text-2xl font-bold text-primary">
-						Arktie
+						Arktie Shop
 					</a>
 				</div>
 				<div className="flex flex-1 items-center justify-center space-x-2 md:justify-end">

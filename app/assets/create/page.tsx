@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { CreateAssetForm } from "./create-asset-form";
 
 export default async function CreateAssetPage() {
