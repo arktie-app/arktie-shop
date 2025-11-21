@@ -167,12 +167,14 @@ export function AssetGrid({
 					</CardContent>
 					<CardFooter className="p-4 pt-2 flex flex-col gap-2">
 						<div className="flex w-full gap-2">
-							<Button variant="outline" size="sm" className="flex-1" asChild>
-								<Link href={`/assets/${asset.id}/edit`}>
-									<Edit className="mr-2 h-3 w-3" />
-									Edit
-								</Link>
-							</Button>
+							{asset.status === "Draft" && (
+								<Button variant="outline" size="sm" className="flex-1" asChild>
+									<Link href={`/assets/${asset.id}/edit`}>
+										<Edit className="mr-2 h-3 w-3" />
+										Edit
+									</Link>
+								</Button>
+							)}
 							<Button variant="outline" size="sm" className="flex-1" asChild>
 								<Link href={`/assets/${asset.id}`} target="_blank">
 									View Product <ExternalLink className="ml-2 h-3 w-3" />

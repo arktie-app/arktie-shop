@@ -23,7 +23,7 @@ export default async function EditAssetPage({ params }: EditAssetPageProps) {
 
 	const asset = await getAsset(id);
 
-	if (!asset) {
+	if (!asset || asset.status !== "Draft") {
 		return redirect("/dashboard");
 	}
 
