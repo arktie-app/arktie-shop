@@ -178,15 +178,5 @@ export async function GET(
 }
 
 function getDownloadHtml(url: string): string {
-	return `
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<title>Download</title>
-		</head>
-		<body>
-			<a href="${url}">Download</a>
-		</body>
-		</html>
-	`;
+	return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Download Your Asset | Arktie Shop</title><style>:root {--bg-color: #09090b;--card-bg: #18181b;--text-primary: #fafafa;--text-secondary: #a1a1aa;--accent-color: #fff;--danger-bg: rgba(127, 29, 29, 0.2);--danger-border: rgba(185, 28, 28, 0.4);--danger-text: #fca5a5;--border-color: #27272a;}body {margin: 0;padding: 0;font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;background-color: var(--bg-color);color: var(--text-primary);display: flex;align-items: center;justify-content: center;min-height: 100vh;box-sizing: border-box;}.container {background-color: var(--card-bg);border: 1px solid var(--border-color);border-radius: 12px;padding: 2.5rem;max-width: 420px;width: 90%;text-align: center;box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);}h1 {margin-top: 0;font-size: 1.5rem;font-weight: 600;margin-bottom: 0.75rem;letter-spacing: -0.025em;}p {color: var(--text-secondary);line-height: 1.6;margin-bottom: 2rem;font-size: 0.95rem;}.warning-box {background-color: var(--danger-bg);border: 1px solid var(--danger-border);color: var(--danger-text);padding: 1rem;border-radius: 8px;margin-bottom: 2rem;font-size: 0.875rem;text-align: left;}.warning-box strong {display: block;margin-bottom: 0.5rem;color: #fecaca;}.warning-box ul {margin: 0;padding-left: 1.25rem;}.warning-box li {margin-bottom: 0.25rem;}.warning-box li:last-child {margin-bottom: 0;}.btn {display: flex;align-items: center;justify-content: center;background-color: var(--accent-color);color: var(--bg-color);padding: 0.75rem 1.5rem;border-radius: 6px;text-decoration: none;font-weight: 600;transition: all 0.2s ease;width: 100%;box-sizing: border-box;font-size: 1rem;}.btn:hover {opacity: 0.9;transform: translateY(-1px);}.btn:active {transform: translateY(0);}.footer {margin-top: 2rem;font-size: 0.75rem;color: var(--text-secondary);opacity: 0.6;}/* Icon styles */.icon {width: 20px;height: 20px;margin-right: 8px;fill: currentColor;}</style></head><body><div class="container"><h1>Ready to Download</h1><p>Thank you for your purchase. Your asset is ready to be downloaded.</p><div class="warning-box"><strong>⚠️ Important Notice</strong><ul><li>This page can only be accessed once.</li><li>The download link will expire in 24 hours.</li></ul></div><a href="${url}" class="btn"><svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L7 11H10V4H14V11H17L12 16ZM6 18V20H18V18H6Z"/></svg>Download Now</a><div class="footer">&copy; ${new Date().getFullYear()} Arktie Shop. All rights reserved.</div></div></body></html>`;
 }
