@@ -1,7 +1,11 @@
+import { AssetCard } from "@/components/asset-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { type AssetWithCreator, getAssets } from "@/lib/assets";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+	const { assets } = await getAssets(1, 8);
+
 	return (
 		<div className="flex min-h-screen flex-col">
 			{/* Header / Navigation */}
@@ -36,7 +40,7 @@ export default function Home() {
 				</section>
 
 				{/* Featured Assets Section */}
-				{/* <FeatureSection /> */}
+				<FeatureSection assets={assets} />
 			</main>
 
 			<footer className="border-t py-8 bg-secondary/30">
@@ -61,49 +65,25 @@ export default function Home() {
 	);
 }
 
-function FeatureSection() {
+function FeatureSection({ assets }: { assets: AssetWithCreator[] }) {
 	return (
 		<section className="py-16 container mx-auto px-4">
 			<div className="flex items-center justify-between mb-8">
 				<h2 className="text-3xl font-bold tracking-tight">Featured Assets</h2>
-				<Button variant="link" className="text-primary">
-					View all
+				<Button variant="link" className="text-primary" asChild>
+					<Link href="/assets">View all</Link>
 				</Button>
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-				{/* Dummy Data */}
-				{Array.from({ length: 8 }).map((_, i) => {
-					return (
-						<Card
-							// biome-ignore lint/suspicious/noArrayIndexKey: Dummy data
-							key={i}
-							className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 group bg-card/50 backdrop-blur-sm"
-						>
-							<div className="aspect-3/4 relative bg-muted overflow-hidden">
-								{/* Placeholder for asset image */}
-								<div className="absolute inset-0 bg-linear-to-tr from-primary/20 to-secondary/20 group-hover:scale-105 transition-transform duration-500" />
-								<div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-md">
-									Illustration
-								</div>
-							</div>
-							<CardHeader className="p-4 pb-0">
-								<CardTitle className="text-lg truncate">
-									Cyberpunk Cityscape Vol. {i + 1}
-								</CardTitle>
-								<p className="text-sm text-muted-foreground">
-									by ArktieCreator
-								</p>
-							</CardHeader>
-							<CardFooter className="p-4 flex items-center justify-between">
-								<span className="font-bold text-lg">$1,500.00</span>
-								<Button size="sm" variant="secondary" className="rounded-full">
-									Add
-								</Button>
-							</CardFooter>
-						</Card>
-					);
-				})}
+				{assets.map((asset) => (
+					<AssetCard key={asset.id} asset={asset} />
+				))}
+				{assets.length === 0 && (
+					<div className="col-span-full text-center text-muted-foreground py-12">
+						No featured assets available at the moment.
+					</div>
+				)}
 			</div>
 		</section>
 	);

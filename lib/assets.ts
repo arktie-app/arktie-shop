@@ -8,23 +8,33 @@ export type AssetWithCreator = Database["public"]["Tables"]["assets"]["Row"] & {
 	};
 };
 
-export async function getAssets(): Promise<AssetWithCreator[]> {
+export async function getAssets(
+	page = 1,
+	limit = 8,
+): Promise<{ assets: AssetWithCreator[]; total: number }> {
 	const supabase = await createClient();
-	const { data, error } = await supabase
+	const from = (page - 1) * limit;
+	const to = from + limit - 1;
+
+	const { data, error, count } = await supabase
 		.from("assets")
-		.select(`
+		.select(
+			`
       *,
       creator:profiles(username, avatar_url)
-    `)
+    `,
+			{ count: "exact" },
+		)
 		.eq("status", "Active")
-		.order("created_at", { ascending: false });
+		.order("created_at", { ascending: false })
+		.range(from, to);
 
 	if (error) {
 		console.error("Error fetching assets:", error);
-		return [];
+		return { assets: [], total: 0 };
 	}
 
-	return data as unknown as AssetWithCreator[];
+	return { assets: data as unknown as AssetWithCreator[], total: count || 0 };
 }
 
 export async function getUserAssets(
