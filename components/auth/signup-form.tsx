@@ -13,13 +13,12 @@ export function SignupForm() {
 	async function handleSubmit(formData: FormData) {
 		try {
 			setLoading(true);
-			const result = await signup(formData);
-			if (result.error) throw result.error;
+			const error = await signup(formData);
+			if (error) throw error;
 
-			toast.success(result.message || "Account created successfully!");
+			toast.success("Account created successfully! Please check your email.");
 		} catch (error) {
-			console.error(error);
-			toast.error("Failed to create account");
+			toast.error(`Failed to create account: ${error}`);
 		} finally {
 			setLoading(false);
 		}
@@ -46,7 +45,7 @@ export function SignupForm() {
 					type="password"
 					placeholder="••••••••"
 					required
-					minLength={6}
+					minLength={8}
 					disabled={loading}
 				/>
 			</div>

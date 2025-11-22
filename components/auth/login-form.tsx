@@ -6,6 +6,7 @@ import { login } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { redirect } from "next/navigation";
 
 export function LoginForm() {
 	const [loading, setLoading] = useState(false);
@@ -13,13 +14,14 @@ export function LoginForm() {
 	async function handleSubmit(formData: FormData) {
 		try {
 			setLoading(true);
-			const result = await login(formData);
-			if (result.error) throw result.error;
+			const error = await login(formData);
+			if (error && error instanceof Error) throw error;
 		} catch (error) {
 			toast.error(`Failed to sign in: ${error}`);
 		} finally {
 			setLoading(false);
 		}
+		redirect("/dashboard");
 	}
 
 	return (

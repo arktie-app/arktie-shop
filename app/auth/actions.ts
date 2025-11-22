@@ -17,11 +17,10 @@ export async function login(formData: FormData) {
 	});
 
 	if (error) {
-		return { error: error.message };
+		return error;
 	}
 
 	revalidatePath("/", "layout");
-	redirect("/");
 }
 
 export async function signup(formData: FormData) {
@@ -42,14 +41,10 @@ export async function signup(formData: FormData) {
 	});
 
 	if (error) {
-		return { error: error.message };
+		return error;
 	}
 
 	revalidatePath("/", "layout");
-	return {
-		success: true,
-		message: "Check your email to continue sign in process",
-	};
 }
 
 export async function signout() {

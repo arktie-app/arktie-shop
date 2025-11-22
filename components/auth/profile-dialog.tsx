@@ -93,7 +93,6 @@ export function ProfileDialog({
 
 			const { error: updateError } = await supabase.auth.updateUser({
 				data: {
-					full_name: username,
 					username: username,
 					avatar_url: avatarUrl,
 				},
